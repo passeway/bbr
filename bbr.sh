@@ -43,11 +43,12 @@ net.core.default_qdisc=fq
 net.ipv4.tcp_congestion_control=bbr
 EOF
 
-    # 应用更改，禁止输出
-    sysctl -p > /dev/null 2>&1 && sysctl --system > /dev/null 2>&1
-
-    # 显示成功提示
-    echo "TCP 优化配置已成功应用，并已开启BBR"
+    # 应用更改，检查错误
+    if sysctl -p > /dev/null 2>&1 && sysctl --system > /dev/null 2>&1; then
+        echo "TCP 优化配置已成功应用，并已开启BBR"
+    else
+        echo "应用 TCP 优化配置时发生错误"
+    fi
 }
 
 # 调用函数
