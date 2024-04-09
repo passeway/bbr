@@ -1,25 +1,28 @@
 #!/bin/bash
 
-tcp_tune(){ # 优化TCP窗口
-sed -i '/net.ipv4.tcp_no_metrics_save/d' /etc/sysctl.conf
-sed -i '/net.ipv4.tcp_ecn/d' /etc/sysctl.conf
-sed -i '/net.ipv4.tcp_frto/d' /etc/sysctl.conf
-sed -i '/net.ipv4.tcp_mtu_probing/d' /etc/sysctl.conf
-sed -i '/net.ipv4.tcp_rfc1337/d' /etc/sysctl.conf
-sed -i '/net.ipv4.tcp_sack/d' /etc/sysctl.conf
-sed -i '/net.ipv4.tcp_fack/d' /etc/sysctl.conf
-sed -i '/net.ipv4.tcp_window_scaling/d' /etc/sysctl.conf
-sed -i '/net.ipv4.tcp_adv_win_scale/d' /etc/sysctl.conf
-sed -i '/net.ipv4.tcp_moderate_rcvbuf/d' /etc/sysctl.conf
-sed -i '/net.ipv4.tcp_rmem/d' /etc/sysctl.conf
-sed -i '/net.ipv4.tcp_wmem/d' /etc/sysctl.conf
-sed -i '/net.core.rmem_max/d' /etc/sysctl.conf
-sed -i '/net.core.wmem_max/d' /etc/sysctl.conf
-sed -i '/net.ipv4.udp_rmem_min/d' /etc/sysctl.conf
-sed -i '/net.ipv4.udp_wmem_min/d' /etc/sysctl.conf
-sed -i '/net.core.default_qdisc/d' /etc/sysctl.conf
-sed -i '/net.ipv4.tcp_congestion_control/d' /etc/sysctl.conf
-cat >> /etc/sysctl.conf << EOF
+tcp_tune() {
+    # 删除现有的 TCP 配置
+    sed -i '/net.ipv4.tcp_no_metrics_save/d' /etc/sysctl.conf
+    sed -i '/net.ipv4.tcp_ecn/d' /etc/sysctl.conf
+    sed -i '/net.ipv4.tcp_frto/d' /etc/sysctl.conf
+    sed -i '/net.ipv4.tcp_mtu_probing/d' /etc/sysctl.conf
+    sed -i '/net.ipv4.tcp_rfc1337/d' /etc/sysctl.conf
+    sed -i '/net.ipv4.tcp_sack/d' /etc/sysctl.conf
+    sed -i '/net.ipv4.tcp_fack/d' /etc/sysctl.conf
+    sed -i '/net.ipv4.tcp_window_scaling/d' /etc/sysctl.conf
+    sed -i '/net.ipv4.tcp_adv_win_scale/d' /etc/sysctl.conf
+    sed -i '/net.ipv4.tcp_moderate_rcvbuf/d' /etc/sysctl.conf
+    sed -i '/net.ipv4.tcp_rmem/d' /etc/sysctl.conf
+    sed -i '/net.ipv4.tcp_wmem/d' /etc/sysctl.conf
+    sed -i '/net.core.rmem_max/d' /etc/sysctl.conf
+    sed -i '/net.core.wmem_max/d' /etc/sysctl.conf
+    sed -i '/net.ipv4.udp_rmem_min/d' /etc/sysctl.conf
+    sed -i '/net.ipv4.udp_wmem_min/d' /etc/sysctl.conf
+    sed -i '/net.core.default_qdisc/d' /etc/sysctl.conf
+    sed -i '/net.ipv4.tcp_congestion_control/d' /etc/sysctl.conf
+
+    # 应用新的 TCP 优化配置
+    cat >> /etc/sysctl.conf << EOF
 net.ipv4.tcp_no_metrics_save=1
 net.ipv4.tcp_ecn=0
 net.ipv4.tcp_frto=0
@@ -39,5 +42,13 @@ net.ipv4.udp_wmem_min=8192
 net.core.default_qdisc=fq
 net.ipv4.tcp_congestion_control=bbr
 EOF
-sysctl -p && sysctl --system
+
+    # 应用更改，禁止输出
+    sysctl -p > /dev/null 2>&1 && sysctl --system > /dev/null 2>&1
+
+    # 显示成功提示
+    echo "TCP 优化配置已成功应用，并已开启BBR"
 }
+
+# 调用函数
+tcp_tune
