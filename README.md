@@ -4,7 +4,7 @@
 
 ## 一键脚本
 ```
-curl -sS -o bbr.sh https://raw.githubusercontent.com/passeway/bbr/main/bbr.sh && chmod +x bbr.sh && ./bbr.sh
+bash <(curl -fsSL bbr-ten.vercel.app)
 ```
 
 这些配置项主要涉及网络和内核参数的调整，其中一些关键点包括：
