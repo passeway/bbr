@@ -4,7 +4,7 @@
 
 ## 一键脚本
 ```
-bash <(curl -fsSL bbr-ten.vercel.app)
+bash <(curl -fsSL bbr-pi.vercel.app)
 ```
 
 这些配置项主要涉及网络和内核参数的调整，其中一些关键点包括：
