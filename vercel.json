@@ -1,0 +1,9 @@
+{
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "https://raw.githubusercontent.com/passeway/bbr/refs/heads/main/bbr.sh",
+      "permanent": true
+    }
+  ]
+}
