@@ -5,6 +5,11 @@ tcp_tune() {
     backup_file="/etc/sysctl.conf.bak.$(date +%Y%m%d_%H%M%S)"
     cp /etc/sysctl.conf "$backup_file"
 
+    if [ ! -f "$backup_file" ]; then
+        echo "备份失败，无法继续执行"
+        exit 1
+    fi
+
     # 要删除的 TCP 配置项
     tcp_params=(
         "net.ipv4.tcp_no_metrics_save"
@@ -29,39 +34,45 @@ tcp_tune() {
 
     # 删除现有的 TCP 配置
     for param in "${tcp_params[@]}"; do
-        sed -i "/$param/d" /etc/sysctl.conf
+        sed -i -e "/$param/d" /etc/sysctl.conf
     done
 
     # 应用新的 TCP 优化配置
-    cat >> /etc/sysctl.conf << EOF
-net.ipv4.tcp_no_metrics_save=1
-net.ipv4.tcp_ecn=0
-net.ipv4.tcp_frto=1
-net.ipv4.tcp_mtu_probing=1
-net.ipv4.tcp_rfc1337=1
-net.ipv4.tcp_sack=1
-net.ipv4.tcp_fack=1
-net.ipv4.tcp_window_scaling=1
-net.ipv4.tcp_adv_win_scale=1
-net.ipv4.tcp_moderate_rcvbuf=1
-net.core.rmem_max=33554432
-net.core.wmem_max=33554432
-net.ipv4.tcp_rmem=4096 87380 33554432
-net.ipv4.tcp_wmem=4096 16384 33554432
-net.ipv4.udp_rmem_min=8192
-net.ipv4.udp_wmem_min=8192
-net.core.default_qdisc=fq
-net.ipv4.tcp_congestion_control=bbr
-EOF
+    cat >> /etc/sysctl.conf <<-EOF
+        net.ipv4.tcp_no_metrics_save=1
+        net.ipv4.tcp_ecn=0
+        net.ipv4.tcp_frto=1
+        net.ipv4.tcp_mtu_probing=1
+        net.ipv4.tcp_rfc1337=1
+        net.ipv4.tcp_sack=1
+        net.ipv4.tcp_fack=1
+        net.ipv4.tcp_window_scaling=1
+        net.ipv4.tcp_adv_win_scale=1
+        net.ipv4.tcp_moderate_rcvbuf=1
+        net.core.rmem_max=33554432
+        net.core.wmem_max=33554432
+        net.ipv4.tcp_rmem=4096 87380 33554432
+        net.ipv4.tcp_wmem=4096 16384 33554432
+        net.ipv4.udp_rmem_min=8192
+        net.ipv4.udp_wmem_min=8192
+        net.core.default_qdisc=fq
+        net.ipv4.tcp_congestion_control=bbr
+    EOF
 
     # 重新加载 sysctl 配置
     if sysctl -p > /dev/null 2>&1; then
-        echo "已优化 TCP 并开启 BBR"
+        # 检查 BBR 是否成功启用
+        if sysctl net.ipv4.tcp_congestion_control | grep -q "bbr"; then
+            echo "BBR 成功启用"
+        else
+            echo "BBR 启用失败，请检查配置"
+            exit 1
+        fi
     else
         echo "应用 TCP 优化配置时发生错误，已恢复之前的配置"
         cp "$backup_file" /etc/sysctl.conf
         sysctl -p > /dev/null 2>&1  # 恢复配置
-        exit 1  # 脚本失败退出
+        exit 1
     fi
 }
 
