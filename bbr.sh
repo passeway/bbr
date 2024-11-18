@@ -56,9 +56,9 @@ EOF
 
     # 重新加载 sysctl 配置
     if sysctl -p > /dev/null 2>&1; then
-        echo "TCP 已优化并开启 BBR"
+        echo "已优化 TCP 并开启 BBR"
     else
-        echo "应用 TCP 优化配置时发生错误，正在恢复之前的配置..."
+        echo "应用 TCP 优化配置时发生错误，已恢复之前的配置"
         cp "$backup_file" /etc/sysctl.conf
         sysctl -p > /dev/null 2>&1  # 恢复配置
         exit 1  # 脚本失败退出
