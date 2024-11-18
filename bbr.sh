@@ -2,7 +2,8 @@
 
 tcp_tune() {
     # 备份原有的 sysctl.conf
-    cp /etc/sysctl.conf /etc/sysctl.conf.bak.$(date +%Y%m%d_%H%M%S)
+    backup_file="/etc/sysctl.conf.bak.$(date +%Y%m%d_%H%M%S)"
+    cp /etc/sysctl.conf "$backup_file"
 
     # 要删除的 TCP 配置项
     tcp_params=(
@@ -53,13 +54,14 @@ net.core.default_qdisc=fq
 net.ipv4.tcp_congestion_control=bbr
 EOF
 
-    # 只使用 sysctl -p 重新加载配置文件
+    # 重新加载 sysctl 配置
     if sysctl -p > /dev/null 2>&1; then
-        echo "TCP 优化配置已成功应用，并已开启 BBR"
+        echo "TCP 已优化并开启 BBR"
     else
-        echo "应用 TCP 优化配置时发生错误，恢复之前的配置"
-        cp /etc/sysctl.conf.bak.$(date +%Y%m%d_%H%M%S) /etc/sysctl.conf
+        echo "应用 TCP 优化配置时发生错误，正在恢复之前的配置..."
+        cp "$backup_file" /etc/sysctl.conf
         sysctl -p > /dev/null 2>&1  # 恢复配置
+        exit 1  # 脚本失败退出
     fi
 }
 
