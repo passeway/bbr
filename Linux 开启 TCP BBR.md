@@ -16,6 +16,9 @@ echo "net.ipv4.tcp_congestion_control=bbr" >> /etc/sysctl.conf
 ```
 sysctl -p
 ```
+net.core.default_qdisc = fq
+net.ipv4.tcp_congestion_control = bbr
+
 执行
 ```
 sysctl net.ipv4.tcp_available_congestion_control
