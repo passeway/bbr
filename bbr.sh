@@ -63,9 +63,9 @@ EOF
     if sysctl -p > /dev/null 2>&1; then
         # 检查 BBR 是否成功启用
         if sysctl net.ipv4.tcp_congestion_control | grep -q "bbr"; then
-            echo "BBR 成功启用"
+            echo "bbr 拥塞控制算法成功启用"
         else
-            echo "BBR 启用失败，请检查配置"
+            echo "bbr 启用失败，请检查配置"
             exit 1
         fi
     else
